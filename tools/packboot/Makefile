@@ -3,11 +3,11 @@
 #
 #
 
-TARGET	= sprdump
+TARGET	= packboot
 CC		= gcc
 
 all:
-	$(CC) sprdump.c -o $(TARGET)
+	$(CC) packboot.c -o $(TARGET)
 
 clean:
 	rm -f $(TARGET)
