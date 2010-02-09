@@ -3,11 +3,11 @@
 #
 #
 
-TARGET	= sprdump
+TARGET	= elf2mmp
 CC		= gcc
 
 all:
-	$(CC) sprdump.c -o $(TARGET)
+	$(CC) elf2mmp.c -o $(TARGET)
 
 clean:
 	rm -f $(TARGET)

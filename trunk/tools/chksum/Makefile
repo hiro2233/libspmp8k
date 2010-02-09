@@ -3,11 +3,11 @@
 #
 #
 
-TARGET	= sprdump
+TARGET	= chksum
 CC		= gcc
 
 all:
-	$(CC) sprdump.c -o $(TARGET)
+	$(CC) chksum.c -o $(TARGET)
 
 clean:
 	rm -f $(TARGET)
