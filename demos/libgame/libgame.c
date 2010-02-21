@@ -21,6 +21,9 @@
 
 void **ftab;
 
+//extern char *heap_ending;
+extern int heap_ending;
+
 void (*_dprintf)(char *fmt, ...);
 
 int (*gfx_init)(void *buffer, int buffsize);
@@ -92,5 +95,8 @@ int libgame_init(void)
 
 	get_time              = FUNC(0x124);
 	get_keys              = FUNC(0x100);
+	
+//	heap_ending = (char*)0;
+	heap_ending = 0;
 }
 

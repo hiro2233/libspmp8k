@@ -13,6 +13,8 @@
 #undef errno
 extern int errno;
 
+
+
 /* environ
 **  A pointer to a list of environment variables and their values.
 **  For a minimal environment, this empty list is adequate:
@@ -24,12 +26,12 @@ char **environ = __env;
 **  Exit a program without cleaning up files.
 **  If your system doesn't provide this, it is best to avoid linking with subroutines that
 **  require it (exit, system).
-*/
+*
 void _exit(int err)
 {
 	while (1);
 }
-
+*/
 /* close
 **  Close a file.
 **
@@ -131,19 +133,32 @@ int _link(char *old, char *new)
 */
 int _lseek(int file, int ptr, int dir)
 {
-	return fs_seek(file, ptr, dir);
-//	return 0;
+	uint64_t ret;
+	
+	ret = fs_seek(file, ptr, dir);
+	return (ret >> 32);
 }
 
 /* open
 **  Open a file. Minimal implementation:
 */
+//#define DBG
+//#ifdef DBG
+//extern int fbuff_printf(char *format, ...);
+//#endif
 int _open(const char *name, int flags, int mode)
 {
-	int fd;
-	fs_open(name, mode, &fd);
+	int fd, _flags;
+	
+	// _F_CREAT
+	_flags = flags & 3;
+	if (flags & 0x200) _flags = 8 | (flags & 3);
+	if ((flags & 0xf) == 0) _flags = 1;
+#ifdef DBG
+	dmsg_printf("(%s)ifl=%x->of=%x\n", name, flags, _flags);
+#endif
+	fs_open(name, _flags, &fd);
 	return fd;
-//	return -1;
 }
 
 /* read
@@ -152,8 +167,10 @@ int _open(const char *name, int flags, int mode)
 int _read(int file, char *ptr, int len)
 {
 	int result = 0;
+	int ret;
 
-	fs_read(file, ptr, len, &result);
+	ret = fs_read(file, ptr, len, &result);
+//	dmsg_printf("read(len=%d), ret=%d, res=%d\n", len, ret, result);
 	return result;
 //	return 0;
 }
@@ -165,25 +182,31 @@ int _read(int file, char *ptr, int len)
 **  The following suffices for a standalone system;
 **  it exploits the symbol end automatically defined by the GNU linker. 	
 */
+//char *heap_ending;
+int heap_ending;
+extern uint32_t __heap_end_asm;
+
+extern caddr_t _sbrk_asm(int incr);
+
+#define RAM_END	0x2000000
+
 caddr_t _sbrk(int incr)
 {
-	extern char end;		/* Defined by the linker */
-	static char *heap_end;
-	char *prev_heap_end;
-     
-	if (heap_end == 0) {
-		heap_end = &end;
+	caddr_t ret;
+#ifdef DBG
+	dmsg_printf("sbrk(incr(0x%x) 0x%x ", incr, __heap_end_asm);
+#endif
+	ret = _sbrk_asm((int)incr);
+#ifdef DBG
+	dmsg_printf("-> 0x%x) ", __heap_end_asm);
+#endif
+	// safety check
+	if (__heap_end_asm >= RAM_END) {
+		errno = ENOMEM;
+		return (caddr_t)(-1);
 	}
-	prev_heap_end = heap_end;
-/*
-	if (heap_end + incr > stack_ptr)
-	{
-		_write (1, "Heap and stack collision\n", 25);
-		abort ();
-	}
-*/
-	heap_end += incr;
-	return (caddr_t) prev_heap_end;
+
+	return ret;
 }
 
 /* stat

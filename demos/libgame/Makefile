@@ -2,9 +2,9 @@
 # libgame Makefile
 #
 #   libgame incorporates the SPMP8k game api as well as some glue
-#	for newlib usage
+#	for newlib usage and a growing set of tiny goodies :-)
 #
-#	in order to use newlib configure it with:
+#	in order to use newlib configure it (newlib) with:
 #		configure --disable-newlib-supplied-syscalls --target=arm-elf
 #	build it and use it in conjunction with this libgame.
 #
@@ -21,17 +21,21 @@ RM		= rm -f
 
 include libgame.cfg
 
+START_O	= start.o
+
 ifdef NEWLIB
 CFLAGS	= -O2 -c -I$(NEWLIB)/include -nostdlib -march=armv5 -msoft-float
-OBJS	= start.o libgame.o glue.o
+#OBJS	= start.o libgame.o glue.o dmsg.o
+OBJS	= libgame.o glue.o dmsg.o font6x8.o
 else
-CFLAGS	= -O2 -c -I$(NEWLIB)/include -nostdlib -march=armv5 -msoft-float
-OBJS	= start.o libgame.o
+CFLAGS	= -O2 -c -nostdlib -march=armv5 -msoft-float
+#OBJS	= start.o libgame.o
+OBJS	= libgame.o
 endif
 ASFLAGS	= -mcpu=arm9
 ARFLAGS	= cr
 
-#malloc.o
+#$(START_O)
 
 all		: $(OBJS)
 		$(AR) $(ARFLAGS) $(TARGET) $(OBJS)

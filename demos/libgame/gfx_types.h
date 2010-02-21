@@ -2,8 +2,11 @@
 #ifndef __GFX_TYPES_H__
 #define __GFX_TYPES_H__
 
-#define COLOR_ROP_TRANSP	0xcc	// transparency
-#define COLOR_ROP_NOP		0xf0	// nop - just paint
+#define	IMG_TYPE_8BPP		1
+#define	IMG_TYPE_4BPP		2
+
+#define COLOR_ROP_TRANSP	0xcc	// WILDCARD
+#define COLOR_ROP_NOP		0xf0	// unknown
 
 typedef unsigned char		uint8_t;
 typedef unsigned short		uint16_t;

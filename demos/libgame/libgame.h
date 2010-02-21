@@ -64,21 +64,21 @@ extern int (*res_play)(uint8_t res_type, int flags, void *res_info);
 extern int (*res_stop)(int arg);
 
 // taken from eCos fcntl.h / unistd.h
-#define O_RDONLY     (1<<0)					// Open for reading only
-#define O_WRONLY     (1<<1)					// Open for writing only
-#define O_RDWR       (O_RDONLY|O_WRONLY)	// Open for reading and writing
-#define O_CREAT      (1<<3)					// Create file it it does not exist
-#define O_EXCL       (1<<4)					// Exclusive use
-#define O_NOCTTY     (1<<5)					// Do not assign a controlling terminal
-#define O_TRUNC      (1<<6)					// Truncate
+#define FS_O_RDONLY     (1<<0)					// Open for reading only
+#define FS_O_WRONLY     (1<<1)					// Open for writing only
+#define FS_O_RDWR       (O_RDONLY|O_WRONLY)	// Open for reading and writing
+#define FS_O_CREAT      (1<<3)					// Create file it it does not exist
+#define FS_O_EXCL       (1<<4)					// Exclusive use
+#define FS_O_NOCTTY     (1<<5)					// Do not assign a controlling terminal
+#define FS_O_TRUNC      (1<<6)					// Truncate
 
-#define SEEK_SET		0
-#define SEEK_CUR		1
-#define SEEK_END		2
+#define FS_SEEK_SET		0
+#define FS_SEEK_CUR		1
+#define FS_SEEK_END		2
 
-#define	STDIN_FILENO	0
-#define	STDOUT_FILENO	1
-#define	STDERR_FILENO	2
+#define	FS_STDIN_FILENO	0
+#define	FS_STDOUT_FILENO	1
+#define	FS_STDERR_FILENO	2
 
 // filesystem
 extern int (*fs_open)(const char *filename, int flags, int *fd);
@@ -95,6 +95,14 @@ extern void (*get_keys)(key_data_t *keys);//uint64_t *keys);
 // ### initializes the function pointers
 // ### (must be called before everything else!)
 int libgame_init(void);
+
+// dmsg stuff
+int dmsg_init(int x, int y, int width, int height);
+void dmsg_shutdown(void);
+void dmsg_wait(int enable);
+void dmsg_clear(void);
+int dmsg_puts(char *__s);
+int dmsg_printf(char *format, ...);
 
 #endif // __LIBGAME_H__
 
