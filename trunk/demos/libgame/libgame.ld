@@ -5,6 +5,8 @@ SECTIONS
 	. = 0xA00000;
 	.text :	{ *(.text) }
 	.data : { *(.data) }
+	_bss_start = .;
 	.bss  : { *(.bss)  }
-	end = .; _end = .; __end = .; __heap_start = .;
+	_bss_end = .;
+	end = .; _end = .; __end = .;
 }
