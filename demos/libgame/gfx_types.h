@@ -8,10 +8,12 @@
 #define COLOR_ROP_TRANSP	0xcc	// WILDCARD
 #define COLOR_ROP_NOP		0xf0	// unknown
 
+#ifndef _STDINT_H
 typedef unsigned char		uint8_t;
 typedef unsigned short		uint16_t;
 typedef unsigned long		uint32_t;
 typedef unsigned long long	uint64_t;
+#endif
 
 typedef struct gfx_point2d {
 	uint16_t	x, y;
