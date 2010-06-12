@@ -39,7 +39,7 @@ typedef struct
     byte		width;
     byte		height;
     byte		data;
-} pic_t;
+} __attribute__ ((packed)) pic_t;
 
 
 

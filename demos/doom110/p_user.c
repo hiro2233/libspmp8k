@@ -152,22 +152,26 @@ void P_MovePlayer (player_t* player)
 	
     cmd = &player->cmd;
 	
-    player->mo->angle += (cmd->angleturn<<16);
+    player->mo->angle += ((cmd->angleturn<<16) & 0xFFFF0000);
 
     // Do not let the player control movement
     //  if not onground.
     onground = (player->mo->z <= player->mo->floorz);
 	
     if (cmd->forwardmove && onground)
-	P_Thrust (player, player->mo->angle, cmd->forwardmove*2048);
+	{
+		int thrust = cmd->forwardmove;
+		thrust *= 2048;
+		P_Thrust (player, player->mo->angle, thrust);//cmd->forwardmove*2048);
+	}
     
     if (cmd->sidemove && onground)
-	P_Thrust (player, player->mo->angle-ANG90, cmd->sidemove*2048);
+		P_Thrust (player, player->mo->angle-ANG90, cmd->sidemove*2048);
 
     if ( (cmd->forwardmove || cmd->sidemove) 
 	 && player->mo->state == &states[S_PLAY] )
     {
-	P_SetMobjState (player->mo, S_PLAY_RUN1);
+		P_SetMobjState (player->mo, S_PLAY_RUN1);
     }
 }	
 
@@ -249,37 +253,37 @@ void P_PlayerThink (player_t* player)
     cmd = &player->cmd;
     if (player->mo->flags & MF_JUSTATTACKED)
     {
-	cmd->angleturn = 0;
-	cmd->forwardmove = 0xc800/512;
-	cmd->sidemove = 0;
-	player->mo->flags &= ~MF_JUSTATTACKED;
+		cmd->angleturn = 0;
+		cmd->forwardmove = 0xc800/512;
+		cmd->sidemove = 0;
+		player->mo->flags &= ~MF_JUSTATTACKED;
     }
 			
 	
     if (player->playerstate == PST_DEAD)
     {
-	P_DeathThink (player);
-	return;
+		P_DeathThink (player);
+		return;
     }
     
     // Move around.
     // Reactiontime is used to prevent movement
     //  for a bit after a teleport.
     if (player->mo->reactiontime)
-	player->mo->reactiontime--;
+		player->mo->reactiontime--;
     else
-	P_MovePlayer (player);
+		P_MovePlayer (player);
     
     P_CalcHeight (player);
 
     if (player->mo->subsector->sector->special)
-	P_PlayerInSpecialSector (player);
+		P_PlayerInSpecialSector (player);
     
     // Check for weapon change.
 
     // A special event has no other buttons.
     if (cmd->buttons & BT_SPECIAL)
-	cmd->buttons = 0;			
+		cmd->buttons = 0;			
 		
     if (cmd->buttons & BT_CHANGE)
     {
@@ -314,7 +318,7 @@ void P_PlayerThink (player_t* player)
 		 && newweapon != wp_bfg)
 		|| (gamemode != shareware) )
 	    {
-		player->pendingweapon = newweapon;
+			player->pendingweapon = newweapon;
 	    }
 	}
     }
@@ -338,26 +342,26 @@ void P_PlayerThink (player_t* player)
 
     // Strength counts up to diminish fade.
     if (player->powers[pw_strength])
-	player->powers[pw_strength]++;	
+		player->powers[pw_strength]++;	
 		
     if (player->powers[pw_invulnerability])
-	player->powers[pw_invulnerability]--;
+		player->powers[pw_invulnerability]--;
 
     if (player->powers[pw_invisibility])
 	if (! --player->powers[pw_invisibility] )
 	    player->mo->flags &= ~MF_SHADOW;
 			
     if (player->powers[pw_infrared])
-	player->powers[pw_infrared]--;
+		player->powers[pw_infrared]--;
 		
     if (player->powers[pw_ironfeet])
-	player->powers[pw_ironfeet]--;
+		player->powers[pw_ironfeet]--;
 		
     if (player->damagecount)
-	player->damagecount--;
+		player->damagecount--;
 		
     if (player->bonuscount)
-	player->bonuscount--;
+		player->bonuscount--;
 
     
     // Handling colormaps.

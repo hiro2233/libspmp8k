@@ -68,7 +68,7 @@ typedef struct thinker_s
     struct thinker_s*	next;
     think_t		function;
     
-} thinker_t;
+} __attribute__ ((packed)) thinker_t;
 
 
 

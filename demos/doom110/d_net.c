@@ -378,19 +378,19 @@ void NetUpdate (void)
     nowtime = I_GetTime ()/ticdup;
     newtics = nowtime - gametime;
     gametime = nowtime;
-	
+
     if (newtics <= 0) 	// nothing new to update
-	goto listen; 
+		goto listen; 
 
     if (skiptics <= newtics)
     {
-	newtics -= skiptics;
-	skiptics = 0;
+		newtics -= skiptics;
+		skiptics = 0;
     }
     else
     {
-	skiptics -= newtics;
-	newtics = 0;
+		skiptics -= newtics;
+		newtics = 0;
     }
 	
 		
@@ -400,14 +400,14 @@ void NetUpdate (void)
     gameticdiv = gametic/ticdup;
     for (i=0 ; i<newtics ; i++)
     {
-	I_StartTic ();
-	D_ProcessEvents ();
-	if (maketic - gameticdiv >= BACKUPTICS/2-1)
-	    break;          // can't hold any more
+		I_StartTic ();
+		D_ProcessEvents ();
+		if (maketic - gameticdiv >= BACKUPTICS/2-1)
+	    	break;          // can't hold any more
 	
-	//printf ("mk:%i ",maketic);
-	G_BuildTiccmd (&localcmds[maketic%BACKUPTICS]);
-	maketic++;
+		//printf ("mk:%i ",maketic);
+		G_BuildTiccmd (&localcmds[maketic%BACKUPTICS]);
+		maketic++;
     }
 
 
@@ -421,28 +421,27 @@ void NetUpdate (void)
 	    netbuffer->starttic = realstart = resendto[i];
 	    netbuffer->numtics = maketic - realstart;
 	    if (netbuffer->numtics > BACKUPTICS)
-		I_Error ("NetUpdate: netbuffer->numtics > BACKUPTICS");
+			I_Error ("NetUpdate: netbuffer->numtics > BACKUPTICS");
 
 	    resendto[i] = maketic - doomcom->extratics;
 
 	    for (j=0 ; j< netbuffer->numtics ; j++)
-		netbuffer->cmds[j] = 
-		    localcmds[(realstart+j)%BACKUPTICS];
+			netbuffer->cmds[j] = localcmds[(realstart+j)%BACKUPTICS];
 					
 	    if (remoteresend[i])
 	    {
-		netbuffer->retransmitfrom = nettics[i];
-		HSendPacket (i, NCMD_RETRANSMIT);
+			netbuffer->retransmitfrom = nettics[i];
+			HSendPacket (i, NCMD_RETRANSMIT);
 	    }
 	    else
 	    {
-		netbuffer->retransmitfrom = 0;
-		HSendPacket (i, 0);
+			netbuffer->retransmitfrom = 0;
+			HSendPacket (i, 0);
 	    }
 	}
     
     // listen for other packets
-  listen:
+listen:
     GetPackets ();
 }
 
@@ -564,32 +563,32 @@ void D_StartGameLoop(void)
 // Works out player numbers among the net participants
 //
 extern	int			viewangleoffset;
-#ifndef SPMP8
+//#ifndef SPMP8
 void D_CheckNetGame (void)
 {
     int             i;
 	
     for (i=0 ; i<MAXNETNODES ; i++)
     {
-	nodeingame[i] = false;
+		nodeingame[i] = false;
        	nettics[i] = 0;
-	remoteresend[i] = false;	// set when local needs tics
-	resendto[i] = 0;		// which tic to start sending
+		remoteresend[i] = false;	// set when local needs tics
+		resendto[i] = 0;		// which tic to start sending
     }
-	
+#ifndef SPMP8
     // I_InitNetwork sets doomcom and netgame
     I_InitNetwork ();
     if (doomcom->id != DOOMCOM_ID)
-	I_Error ("Doomcom buffer invalid!");
+		I_Error ("Doomcom buffer invalid!");
     
     netbuffer = &doomcom->data;
     consoleplayer = displayplayer = doomcom->consoleplayer;
     if (netgame)
-	D_ArbitrateNetStart ();
+		D_ArbitrateNetStart ();
 
     printf ("startskill %i  deathmatch: %i  startmap: %i  startepisode: %i\n",
 	    startskill, deathmatch, startmap, startepisode);
-	
+#endif
     // read values out of doomcom
     ticdup = doomcom->ticdup;
     maxsend = BACKUPTICS/(2*ticdup)-1;
@@ -597,22 +596,22 @@ void D_CheckNetGame (void)
 	maxsend = 1;
 			
     for (i=0 ; i<doomcom->numplayers ; i++)
-	playeringame[i] = true;
+		playeringame[i] = true;
     for (i=0 ; i<doomcom->numnodes ; i++)
-	nodeingame[i] = true;
+		nodeingame[i] = true;
 	
     printf ("player %i of %i (%i nodes)\n",
 	    consoleplayer+1, doomcom->numplayers, doomcom->numnodes);
 
 }
-#endif
+//#endif
 
 //
 // D_QuitNetGame
 // Called before quitting to leave a net game
 // without hanging the other players
 //
-#ifndef SPMP8
+//#ifndef SPMP8
 void D_QuitNetGame (void)
 {
     int             i, j;
@@ -622,7 +621,7 @@ void D_QuitNetGame (void)
 		
     if (!netgame || !usergame || consoleplayer == -1 || demoplayback)
 	return;
-	
+#ifndef SPMP8	
     // send a bunch of packets for security
     netbuffer->player = consoleplayer;
     netbuffer->numtics = 0;
@@ -633,8 +632,9 @@ void D_QuitNetGame (void)
 		HSendPacket (j, NCMD_EXIT);
 	I_WaitVBL (1);
     }
-}
 #endif
+}
+//#endif
 
 
 //

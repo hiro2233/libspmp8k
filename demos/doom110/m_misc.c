@@ -238,7 +238,20 @@ default_t	defaults[] =
     {"sfx_volume",&snd_SfxVolume, 8},
     {"music_volume",&snd_MusicVolume, 8},
     {"show_messages",&showMessages, 1},
-    
+
+#ifdef SPMP8
+    {"key_right",&key_right, KEY_RIGHTARROW},
+    {"key_left",&key_left, KEY_LEFTARROW},
+    {"key_up",&key_up, KEY_UPARROW},
+    {"key_down",&key_down, KEY_DOWNARROW},
+	{"key_strafeleft",&key_strafeleft, 0xfe},
+	{"key_straferight",&key_straferight, 0xfe},
+
+	{"key_fire",&key_fire, KEY_RCTRL},
+	{"key_use",&key_use, ' '},
+	{"key_strafe",&key_strafe, 0xfe},
+	{"key_speed",&key_speed, 0xfe},
+#endif
 
 #ifdef NORMALUNIX
     {"key_right",&key_right, KEY_RIGHTARROW},
@@ -277,14 +290,14 @@ default_t	defaults[] =
     {"joyb_use",&joybuse,3},
     {"joyb_speed",&joybspeed,2},
 
-    {"screenblocks",&screenblocks, 9},
+    {"screenblocks",&screenblocks, 10},
     {"detaillevel",&detailLevel, 0},
 
     {"snd_channels",&numChannels, 3},
 
 
 
-    {"usegamma",&usegamma, 0},
+    {"usegamma",&usegamma, 2},
 
     {"chatmacro0", (int *) &chat_macros[0], (int) HUSTR_CHATMACRO0 },
     {"chatmacro1", (int *) &chat_macros[1], (int) HUSTR_CHATMACRO1 },
@@ -365,7 +378,6 @@ void M_LoadDefaults (void)
 	defaultfile = basedefault;
     
     // read the file in, overriding any set defaults
-    dmsg_printf("default.cfg = \"%s\"", defaultfile);
 /*
     f = fopen (defaultfile, "r");
     if (f)

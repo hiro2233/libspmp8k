@@ -164,6 +164,7 @@ typedef struct player_s
     // True if secret level has been done.
     boolean		didsecret;	
 
+//} __attribute__ ((packed)) player_t;
 } player_t;
 
 
@@ -183,7 +184,7 @@ typedef struct
     int		frags[4];
     int		score;	// current score on entry, modified on return
   
-} wbplayerstruct_t;
+} __attribute__ ((packed)) wbplayerstruct_t;
 
 typedef struct
 {
@@ -209,7 +210,7 @@ typedef struct
 
     wbplayerstruct_t	plyr[MAXPLAYERS];
 
-} wbstartstruct_t;
+} __attribute__ ((packed)) wbstartstruct_t;
 
 
 #endif

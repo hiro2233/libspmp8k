@@ -48,7 +48,7 @@ typedef struct
     int		data1;		// keys / mouse/joystick buttons
     int		data2;		// mouse/joystick x move
     int		data3;		// mouse/joystick y move
-} event_t;
+} __attribute__ ((packed)) event_t;
 
  
 typedef enum

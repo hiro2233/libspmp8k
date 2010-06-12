@@ -34,6 +34,10 @@ rcsid[] = "$Id: i_main.c,v 1.4 1997/02/03 22:45:10 b1 Exp $";
 #include "m_argv.h"
 #include "d_main.h"
 
+//#include "loading.h"
+
+#include "rls_text.h"
+
 int
 main
 ( int		argc,
@@ -63,36 +67,59 @@ main
 
 	gfx_set_framebuffer(320, 240);
 	gfx_set_display_screen(&rect);
-	
+/*	
 	// clear the background
-	color = MAKE_RGB(255,255,255);
+	if (loading_img.data == NULL) {
+		color = MAKE_RGB(255,0,255);
+	}
+	else if (loading_img.pal_data == NULL) {
+		color = MAKE_RGB(0,0,255);
+	}
+	else color = MAKE_RGB(255,255,255);
+*/	
 	gfx_enable_feature(3);
 	gfx_set_fgcolor(&color);
 	gfx_set_colorrop(COLOR_ROP_NOP);
 	gfx_fillrect(&rect);
-	
-	// initialize the dmsg
-	dmsg_init(0, 0, 320, 240);
-	dmsg_puts("Debug Console\n");
 /*
-	// okay, I_GetTime() works
-	int ti, t;
-	ti = I_GetTime();
-	while (1) {
-		get_keys(&keys);
-		if (keys.key2 & KEY_O) break;
+	// loading screen
+	uint8_t loading_id;
+	
+	if (gfx_load_image(&loading_img, &loading_id) != 0) return;
+	{
+		gfx_point2d_t at;
+		gfx_rect_t rect;
 		
-		t = I_GetTime();
-		if ((t - ti) > 10) {
-			dmsg_puts(".");
-			ti = t;
-		}
+		gfx_set_colorrop(0xcc);
+		
+		at.x = 8;
+		at.y = 8;
+		rect.x = 8;
+		rect.y = 8;
+		rect.width=300;
+		rect.height= 200;
+		
+	//	gfx_bitblt(loading_id, &rect, &at);
+		gfx_sprite(loading_id, &rect, &at);
 	}
 */
-//	dmsg_wait(1);
+//#ifdef DEBUG
+	// initialize the dmsg
+	dmsg_init(0, 0, 320, 240);
+//	dmsg_puts("Debug Console\n");
+	dmsg_wait(0);
+//#endif
+	dmsg_puts(rls_text1);
+	dmsg_puts(rls_text2);
+/*
+	gfx_flush();
+	gfx_paint();
+*/
 	D_DoomMain();
 
+#ifdef DEBUG
 	dmsg_shutdown();
+#endif
 #endif
     return 0;
 } 

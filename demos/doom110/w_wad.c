@@ -50,8 +50,7 @@ rcsid[] = "$Id: w_wad.c,v 1.5 1997/02/03 16:47:57 b1 Exp $";
 
 
 #ifdef SPMP8
-#include "libgame.h"
-#define printf dmsg_printf
+	#include "libgame.h"
 #endif
 
 
@@ -87,8 +86,6 @@ int filelength (int handle)
 	lseek(handle, 0, SEEK_END);
 	size = tell(handle);
 	lseek(handle, fpos, SEEK_SET);
-	
-	dmsg_printf("ip=%d, sz=%d, ep=%d\n", fpos, size, tell(handle));
 
 //    return fileinfo.st_size;
 	return size;
@@ -190,7 +187,6 @@ void W_AddFile (char *filename)
 		singleinfo.size = LONG(filelength(handle));
 	/*	if (handle != -1) singleinfo.size = LONG(filelength(handle));
 		else singleinfo.size = 0;
-		dmsg_printf("single: %s, size=%d (%d)\n", filename, singleinfo.size, handle);
 	*/	ExtractFileBase (filename, singleinfo.name);
 		numlumps++;
     }
@@ -234,11 +230,8 @@ void W_AddFile (char *filename)
 		lump_p->handle = storehandle;
 		lump_p->position = LONG(fileinfo->filepos);
 		lump_p->size = LONG(fileinfo->size);
-//		if (lump_p->size > 0x100000) dmsg_printf("lump %d > 1Meg\n", i);
 		strncpy (lump_p->name, fileinfo->name, 8);
     }
-    
-//	dmsg_printf("lumps: new=%d, total=%d\n", numlumps-startlump, numlumps);
 
     if (reloadname)
 	close (handle);
@@ -264,7 +257,7 @@ void W_Reload (void)
 	
     if (!reloadname)
 	return;
-dmsg_puts("W_Reload()\n");
+
     if ((handle = open (reloadname,O_RDONLY | O_BINARY)) == -1)
 		I_Error ("W_Reload: couldn't open %s",reloadname);
 
@@ -506,7 +499,6 @@ W_CacheLumpNum
 	// read the lump in
 	
 	//printf ("cache miss on lump %i\n",lump);
-//	dmsg_printf("CacheLumpNum(%d, size=%d)\n", lump, W_LumpLength (lump));
 	ptr = Z_Malloc (W_LumpLength (lump), tag, &lumpcache[lump]);
 	W_ReadLump (lump, lumpcache[lump]);
     }

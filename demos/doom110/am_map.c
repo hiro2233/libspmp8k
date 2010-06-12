@@ -580,9 +580,9 @@ void AM_Start (void)
     stopped = false;
     if (lastlevel != gamemap || lastepisode != gameepisode)
     {
-	AM_LevelInit();
-	lastlevel = gamemap;
-	lastepisode = gameepisode;
+		AM_LevelInit();
+		lastlevel = gamemap;
+		lastepisode = gameepisode;
     }
     AM_initVariables();
     AM_loadPics();
@@ -626,114 +626,128 @@ AM_Responder
 
     if (!automapactive)
     {
-	if (ev->type == ev_keydown && ev->data1 == AM_STARTKEY)
-	{
-	    AM_Start ();
-	    viewactive = false;
-	    rc = true;
-	}
+		if (ev->type == ev_keydown && ev->data1 == AM_STARTKEY)
+		{
+			AM_Start ();
+			viewactive = false;
+			rc = true;
+		}
     }
 
     else if (ev->type == ev_keydown)
     {
+		rc = true;
+		switch(ev->data1)
+		{
+			case AM_PANRIGHTKEY: // pan right
+				if (!followplayer) m_paninc.x = FTOM(F_PANINC);
+				else rc = false;
+				break;
 
-	rc = true;
-	switch(ev->data1)
-	{
-	  case AM_PANRIGHTKEY: // pan right
-	    if (!followplayer) m_paninc.x = FTOM(F_PANINC);
-	    else rc = false;
-	    break;
-	  case AM_PANLEFTKEY: // pan left
-	    if (!followplayer) m_paninc.x = -FTOM(F_PANINC);
-	    else rc = false;
-	    break;
-	  case AM_PANUPKEY: // pan up
-	    if (!followplayer) m_paninc.y = FTOM(F_PANINC);
-	    else rc = false;
-	    break;
-	  case AM_PANDOWNKEY: // pan down
-	    if (!followplayer) m_paninc.y = -FTOM(F_PANINC);
-	    else rc = false;
-	    break;
-	  case AM_ZOOMOUTKEY: // zoom out
-	    mtof_zoommul = M_ZOOMOUT;
-	    ftom_zoommul = M_ZOOMIN;
-	    break;
-	  case AM_ZOOMINKEY: // zoom in
-	    mtof_zoommul = M_ZOOMIN;
-	    ftom_zoommul = M_ZOOMOUT;
-	    break;
-	  case AM_ENDKEY:
-	    bigstate = 0;
-	    viewactive = true;
-	    AM_Stop ();
-	    break;
-	  case AM_GOBIGKEY:
-	    bigstate = !bigstate;
-	    if (bigstate)
-	    {
-		AM_saveScaleAndLoc();
-		AM_minOutWindowScale();
-	    }
-	    else AM_restoreScaleAndLoc();
-	    break;
-	  case AM_FOLLOWKEY:
-	    followplayer = !followplayer;
-	    f_oldloc.x = MAXINT;
-	    plr->message = followplayer ? AMSTR_FOLLOWON : AMSTR_FOLLOWOFF;
-	    break;
-	  case AM_GRIDKEY:
-	    grid = !grid;
-	    plr->message = grid ? AMSTR_GRIDON : AMSTR_GRIDOFF;
-	    break;
-	  case AM_MARKKEY:
-	    sprintf(buffer, "%s %d", AMSTR_MARKEDSPOT, markpointnum);
-	    plr->message = buffer;
-	    AM_addMark();
-	    break;
-	  case AM_CLEARMARKKEY:
-	    AM_clearMarks();
-	    plr->message = AMSTR_MARKSCLEARED;
-	    break;
-	  default:
-	    cheatstate=0;
-	    rc = false;
-	}
-	if (!deathmatch && cht_CheckCheat(&cheat_amap, ev->data1))
-	{
-	    rc = false;
-	    cheating = (cheating+1) % 3;
-	}
+			case AM_PANLEFTKEY: // pan left
+				if (!followplayer) m_paninc.x = -FTOM(F_PANINC);
+				else rc = false;
+				break;
+
+			case AM_PANUPKEY: // pan up
+				if (!followplayer) m_paninc.y = FTOM(F_PANINC);
+				else rc = false;
+				break;
+
+			case AM_PANDOWNKEY: // pan down
+				if (!followplayer) m_paninc.y = -FTOM(F_PANINC);
+				else rc = false;
+				break;
+
+			case AM_ZOOMOUTKEY: // zoom out
+				mtof_zoommul = M_ZOOMOUT;
+				ftom_zoommul = M_ZOOMIN;
+				break;
+
+			case AM_ZOOMINKEY: // zoom in
+				mtof_zoommul = M_ZOOMIN;
+				ftom_zoommul = M_ZOOMOUT;
+				break;
+
+			case AM_ENDKEY:
+				bigstate = 0;
+				viewactive = true;
+				AM_Stop ();
+				break;
+
+			case AM_GOBIGKEY:
+				bigstate = !bigstate;
+				if (bigstate)
+				{
+					AM_saveScaleAndLoc();
+					AM_minOutWindowScale();
+				}
+				else AM_restoreScaleAndLoc();
+				break;
+
+			case AM_FOLLOWKEY:
+				followplayer = !followplayer;
+				f_oldloc.x = MAXINT;
+				plr->message = followplayer ? AMSTR_FOLLOWON : AMSTR_FOLLOWOFF;
+				break;
+
+			case AM_GRIDKEY:
+				grid = !grid;
+				plr->message = grid ? AMSTR_GRIDON : AMSTR_GRIDOFF;
+				break;
+
+			case AM_MARKKEY:
+				sprintf(buffer, "%s %d", AMSTR_MARKEDSPOT, markpointnum);
+				plr->message = buffer;
+				AM_addMark();
+				break;
+
+			case AM_CLEARMARKKEY:
+				AM_clearMarks();
+				plr->message = AMSTR_MARKSCLEARED;
+				break;
+
+			default:
+				cheatstate=0;
+				rc = false;
+		}
+
+		if (!deathmatch && cht_CheckCheat(&cheat_amap, ev->data1))
+		{
+	    	rc = false;
+	    	cheating = (cheating+1) % 3;
+		}
     }
-
     else if (ev->type == ev_keyup)
     {
-	rc = false;
-	switch (ev->data1)
-	{
-	  case AM_PANRIGHTKEY:
-	    if (!followplayer) m_paninc.x = 0;
-	    break;
-	  case AM_PANLEFTKEY:
-	    if (!followplayer) m_paninc.x = 0;
-	    break;
-	  case AM_PANUPKEY:
-	    if (!followplayer) m_paninc.y = 0;
-	    break;
-	  case AM_PANDOWNKEY:
-	    if (!followplayer) m_paninc.y = 0;
-	    break;
-	  case AM_ZOOMOUTKEY:
-	  case AM_ZOOMINKEY:
-	    mtof_zoommul = FRACUNIT;
-	    ftom_zoommul = FRACUNIT;
-	    break;
+		rc = false;
+		switch (ev->data1)
+		{
+			case AM_PANRIGHTKEY:
+				if (!followplayer) m_paninc.x = 0;
+				break;
+
+			case AM_PANLEFTKEY:
+				if (!followplayer) m_paninc.x = 0;
+				break;
+
+			case AM_PANUPKEY:
+				if (!followplayer) m_paninc.y = 0;
+				break;
+
+			case AM_PANDOWNKEY:
+				if (!followplayer) m_paninc.y = 0;
+				break;
+
+			case AM_ZOOMOUTKEY:
+			case AM_ZOOMINKEY:
+				mtof_zoommul = FRACUNIT;
+				ftom_zoommul = FRACUNIT;
+				break;
+		}
 	}
-    }
 
-    return rc;
-
+	return rc;
 }
 
 
@@ -999,8 +1013,8 @@ AM_drawFline
 	   || fl->b.x < 0 || fl->b.x >= f_w
 	   || fl->b.y < 0 || fl->b.y >= f_h)
     {
-	fprintf(stderr, "fuck %d \r", fuck++);
-	return;
+		fprintf(stderr, "fuck %d \r", fuck++);
+		return;
     }
 
 #define PUTDOT(xx,yy,cc) fb[(yy)*f_w+(xx)]=(cc)
@@ -1062,7 +1076,7 @@ AM_drawMline
     static fline_t fl;
 
     if (AM_clipMline(ml, &fl))
-	AM_drawFline(&fl, color); // draws it on frame buffer using fb coords
+		AM_drawFline(&fl, color); // draws it on frame buffer using fb coords
 }
 
 
@@ -1336,16 +1350,15 @@ void AM_Drawer (void)
     if (!automapactive) return;
 
     AM_clearFB(BACKGROUND);
-    if (grid)
-	AM_drawGrid(GRIDCOLORS);
+    if (grid) {
+		AM_drawGrid(GRIDCOLORS);
+	}
     AM_drawWalls();
     AM_drawPlayers();
-    if (cheating==2)
-	AM_drawThings(THINGCOLORS, THINGRANGE);
+    if (cheating==2) {
+		AM_drawThings(THINGCOLORS, THINGRANGE);
+	}
     AM_drawCrosshair(XHAIRCOLORS);
-
     AM_drawMarks();
-
-    V_MarkRect(f_x, f_y, f_w, f_h);
-
+	V_MarkRect(f_x, f_y, f_w, f_h);
 }
