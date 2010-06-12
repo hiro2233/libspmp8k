@@ -43,7 +43,7 @@ rcsid[] = "$Id: st_lib.c,v 1.4 1997/02/03 16:47:56 b1 Exp $";
 #include "st_lib.h"
 #include "r_local.h"
 
-
+#undef RANGECHECK
 // in AM_map.c
 extern boolean		automapactive; 
 
@@ -121,9 +121,11 @@ STlib_drawNum
     x = n->x - numdigits*w;
 
     if (n->y - ST_Y < 0) {
-    	dmsg_printf("ST_Y = %d, n->y = %d\n", ST_Y, n->y);
+#ifndef RANGECHECK
     	return;
+#else
 		I_Error("drawNum: n->y - ST_Y < 0");
+#endif
 	}
 
     V_CopyRect(x, n->y - ST_Y, BG, w*numdigits, h, x, n->y, FG);
@@ -234,9 +236,11 @@ STlib_updateMultIcon
 	    h = SHORT(mi->p[mi->oldinum]->height);
 
 	    if (y - ST_Y < 0) {
-	    	dmsg_printf("updateMultIcon: y(%d) - ST_Y < 0\n", y);
+#ifndef RANGECHECK
 	    	return;
+#else
 			I_Error("updateMultIcon: y - ST_Y < 0");
+#endif
 		}
 
 	    V_CopyRect(x, y-ST_Y, BG, w, h, x, y, FG);
@@ -286,8 +290,11 @@ STlib_updateBinIcon
 	h = SHORT(bi->p->height);
 
 	if (y - ST_Y < 0) {
-		dmsg_printf("updateBinIcon: y(%d) - ST_Y < 0\n", y);
+#ifndef RANGECHECK
+		return;
+#else
 	    I_Error("updateBinIcon: y - ST_Y < 0");
+#endif
 	}
 
 	if (*bi->val)

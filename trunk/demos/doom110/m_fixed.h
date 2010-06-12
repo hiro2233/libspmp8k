@@ -30,11 +30,13 @@
 #endif
 
 #ifndef MININT
-#define MININT	-32768
+//#define MININT	-32768
+#define MININT	-2147483648
 #endif
 
 #ifndef MAXINT
-#define	MAXINT	32767
+//#define	MAXINT	32767
+#define	MAXINT	2147483647
 #endif
 
 //

@@ -6,6 +6,7 @@ NEWLIB	= ../../../newlib
 TOOLS_DIR = ../../bin
 LIBGAME	= ../libgame
 
+# RESOBJS	= loading.o
 
 OBJS	= ./objs/g_game.o ./objs/am_map.o ./objs/f_wipe.o  ./objs/m_random.o \
 	./objs/p_map.o ./objs/p_spec.o ./objs/st_stuff.o ./objs/d_items.o ./objs/m_swap.o \
@@ -20,11 +21,15 @@ OBJS	= ./objs/g_game.o ./objs/am_map.o ./objs/f_wipe.o  ./objs/m_random.o \
 	./objs/r_draw.o ./objs/st_lib.o ./objs/i_system.o ./objs/r_main.o ./objs/i_video.o ./objs/i_main.o \
 	./objs/i_spmp.o ./objs/d_net.o
 
+# OBJS	+= $(RESOBJS)
+
 LIBS	= -lgame -lc -lgcc -lgame
 
 include ../libgame/libgame.mk
 
 CFLAGS += -DSPMP8 -DNO_SOUND
+#-DNORMALUNIX
 
 objs/%.o: %.c
 		$(CC) $(CFLAGS) $< -o $@
+

@@ -68,7 +68,7 @@ typedef struct
     // user data
     int data;
     
-} st_number_t;
+} __attribute__ ((packed)) st_number_t;
 
 
 
@@ -82,7 +82,7 @@ typedef struct
     // percent sign graphic
     patch_t*		p;
     
-} st_percent_t;
+} __attribute__ ((packed)) st_percent_t;
 
 
 
@@ -109,7 +109,7 @@ typedef struct
     // user data
     int			data;
     
-} st_multicon_t;
+} __attribute__ ((packed)) st_multicon_t;
 
 
 
@@ -136,7 +136,7 @@ typedef struct
     patch_t*		p;	// icon
     int			data;   // user data
     
-} st_binicon_t;
+} __attribute__ ((packed)) st_binicon_t;
 
 
 

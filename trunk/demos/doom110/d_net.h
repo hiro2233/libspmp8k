@@ -72,7 +72,7 @@ typedef struct
     byte		numtics;
     ticcmd_t		cmds[BACKUPTICS];
 
-} doomdata_t;
+} __attribute__ ((packed)) doomdata_t;
 
 
 
@@ -125,7 +125,7 @@ typedef struct
     // The packet data to be sent.
     doomdata_t		data;
     
-} doomcom_t;
+} __attribute__ ((packed)) doomcom_t;
 
 
 

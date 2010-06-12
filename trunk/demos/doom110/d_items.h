@@ -41,7 +41,7 @@ typedef struct
     int		atkstate;
     int		flashstate;
 
-} weaponinfo_t;
+} __attribute__ ((packed)) weaponinfo_t;
 
 extern  weaponinfo_t    weaponinfo[NUMWEAPONS];
 

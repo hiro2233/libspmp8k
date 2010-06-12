@@ -46,13 +46,17 @@ typedef unsigned char byte;
 #define MAXSHORT	((short)0x7fff)
 
 // Max pos 32-bit int.
-#define MAXINT		((int)0x7fffffff)	
+#ifndef MAXINT
+	#define MAXINT		((int)0x7fffffff)	
+#endif
 #define MAXLONG		((long)0x7fffffff)
 #define MINCHAR		((char)0x80)
 #define MINSHORT	((short)0x8000)
 
 // Max negative 32-bit integer.
-#define MININT		((int)0x80000000)	
+#ifndef MININT
+	#define MININT		((int)0x80000000)	
+#endif
 #define MINLONG		((long)0x80000000)
 #endif
 

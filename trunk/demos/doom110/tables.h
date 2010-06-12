@@ -75,7 +75,7 @@ extern fixed_t		finetangent[FINEANGLES/2];
 #define SLOPEBITS		11
 #define DBITS			(FRACBITS-SLOPEBITS)
 
-typedef unsigned angle_t;
+typedef unsigned long angle_t;
 
 
 // Effective size is 2049;

@@ -406,8 +406,8 @@ void HU_Init(void)
     j = HU_FONTSTART;
     for (i=0;i<HU_FONTSIZE;i++)
     {
-	sprintf(buffer, "STCFN%.3d", j++);
-	hu_font[i] = (patch_t *) W_CacheLumpName(buffer, PU_STATIC);
+		sprintf(buffer, "STCFN%.3d", j++);
+		hu_font[i] = (patch_t *) W_CacheLumpName(buffer, PU_STATIC);
     }
 
 }
@@ -449,8 +449,8 @@ void HU_Start(void)
       case shareware:
       case registered:
       case retail:
-	s = HU_TITLE;
-	break;
+		s = HU_TITLE;
+		break;
 
 /* FIXME
       case pack_plut:
@@ -463,12 +463,12 @@ void HU_Start(void)
 	
       case commercial:
       default:
-	 s = HU_TITLE2;
-	 break;
+	 	s = HU_TITLE2;
+	 	break;
     }
     
     while (*s)
-	HUlib_addCharToTextLine(&w_title, *(s++));
+		HUlib_addCharToTextLine(&w_title, *(s++));
 
     // create the chat widget
     HUlib_initIText(&w_chat,
@@ -496,11 +496,11 @@ void HU_Drawer(void)
 
 void HU_Erase(void)
 {
-
+/*
     HUlib_eraseSText(&w_message);
     HUlib_eraseIText(&w_chat);
     HUlib_eraseTextLine(&w_title);
-
+*/
 }
 
 void HU_Ticker(void)

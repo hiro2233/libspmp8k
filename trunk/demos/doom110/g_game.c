@@ -242,7 +242,7 @@ void G_BuildTiccmd (ticcmd_t* cmd)
     boolean	bstrafe; 
     int		speed;
     int		tspeed; 
-    int		forward;
+    signed int		forward;
     int		side;
     
     ticcmd_t*	base;
@@ -254,89 +254,94 @@ void G_BuildTiccmd (ticcmd_t* cmd)
 	consistancy[consoleplayer][maketic%BACKUPTICS]; 
 
  
-    strafe = gamekeydown[key_strafe] || mousebuttons[mousebstrafe] 
-	|| joybuttons[joybstrafe]; 
-    speed = gamekeydown[key_speed] || joybuttons[joybspeed];
+	strafe = gamekeydown[key_strafe] || mousebuttons[mousebstrafe] 
+		|| joybuttons[joybstrafe]; 
+	speed = gamekeydown[key_speed] || joybuttons[joybspeed];
  
-    forward = side = 0;
-    
-    // use two stage accelerative turning
-    // on the keyboard and joystick
-    if (joyxmove < 0
-	|| joyxmove > 0  
-	|| gamekeydown[key_right]
-	|| gamekeydown[key_left]) 
-	turnheld += ticdup; 
-    else 
-	turnheld = 0; 
+	forward = side = 0;
 
-    if (turnheld < SLOWTURNTICS) 
-	tspeed = 2;             // slow turn 
+	// use two stage accelerative turning
+	// on the keyboard and joystick
+	if ((joyxmove < 0)
+		|| (joyxmove > 0)
+		|| (gamekeydown[key_right] != 0)
+		|| (gamekeydown[key_left] != 0))
+	{
+		turnheld += ticdup; 
+	}
+	else 
+		turnheld = 0; 
+
+	if (turnheld < SLOWTURNTICS) 
+		tspeed = 2;             // slow turn 
     else 
-	tspeed = speed;
+		tspeed = speed;
     
     // let movement keys cancel each other out
     if (strafe) 
-    { 
-	if (gamekeydown[key_right]) 
-	{
-	    // fprintf(stderr, "strafe right\n");
-	    side += sidemove[speed]; 
-	}
-	if (gamekeydown[key_left]) 
-	{
-	    //	fprintf(stderr, "strafe left\n");
-	    side -= sidemove[speed]; 
-	}
-	if (joyxmove > 0) 
-	    side += sidemove[speed]; 
-	if (joyxmove < 0) 
-	    side -= sidemove[speed]; 
- 
+	{ 
+		if (gamekeydown[key_right]) 
+		{
+	    	// fprintf(stderr, "strafe right\n");
+	    	side += sidemove[speed]; 
+		}
+		if (gamekeydown[key_left]) 
+		{
+	    	//	fprintf(stderr, "strafe left\n");
+	    	side -= sidemove[speed]; 
+		}
+		if (joyxmove > 0) 
+	    	side += sidemove[speed]; 
+		if (joyxmove < 0) 
+	    	side -= sidemove[speed]; 
     } 
     else 
     { 
-	if (gamekeydown[key_right]) 
-	    cmd->angleturn -= angleturn[tspeed]; 
-	if (gamekeydown[key_left]) 
-	    cmd->angleturn += angleturn[tspeed]; 
-	if (joyxmove > 0) 
-	    cmd->angleturn -= angleturn[tspeed]; 
-	if (joyxmove < 0) 
-	    cmd->angleturn += angleturn[tspeed]; 
+		if (gamekeydown[key_right]) 
+		    cmd->angleturn -= angleturn[tspeed]; 
+		if (gamekeydown[key_left]) 
+	    	cmd->angleturn += angleturn[tspeed]; 
+		if (joyxmove > 0) 
+	    	cmd->angleturn -= angleturn[tspeed]; 
+		if (joyxmove < 0) 
+	    	cmd->angleturn += angleturn[tspeed]; 
     } 
  
     if (gamekeydown[key_up]) 
     {
 	// fprintf(stderr, "up\n");
-	forward += forwardmove[speed]; 
+		forward += forwardmove[speed]; 
     }
     if (gamekeydown[key_down]) 
     {
 	// fprintf(stderr, "down\n");
-	forward -= forwardmove[speed]; 
+		forward -= forwardmove[speed]; 
     }
+
     if (joyymove < 0) 
-	forward += forwardmove[speed]; 
+		forward += forwardmove[speed]; 
     if (joyymove > 0) 
-	forward -= forwardmove[speed]; 
+		forward -= forwardmove[speed]; 
+
     if (gamekeydown[key_straferight]) 
-	side += sidemove[speed]; 
+		side += sidemove[speed]; 
     if (gamekeydown[key_strafeleft]) 
-	side -= sidemove[speed];
+		side -= sidemove[speed];
     
     // buttons
     cmd->chatchar = HU_dequeueChatChar(); 
  
     if (gamekeydown[key_fire] || mousebuttons[mousebfire] 
-	|| joybuttons[joybfire]) 
-	cmd->buttons |= BT_ATTACK; 
+		|| joybuttons[joybfire]) 
+	{
+		cmd->buttons |= BT_ATTACK; 
+	}
  
     if (gamekeydown[key_use] || joybuttons[joybuse] ) 
     { 
-	cmd->buttons |= BT_USE;
-	// clear double clicks if hit use button 
-	dclicks = 0;                   
+		cmd->buttons |= BT_USE;
+		// clear double clicks if hit use button 
+		dclicks = 0;                   
     } 
 
     // chainsaw overrides 
@@ -412,9 +417,10 @@ void G_BuildTiccmd (ticcmd_t* cmd)
     mousex = mousey = 0; 
 	 
     if (forward > MAXPLMOVE) 
-	forward = MAXPLMOVE; 
+		forward = MAXPLMOVE; 
     else if (forward < -MAXPLMOVE) 
-	forward = -MAXPLMOVE; 
+		forward = -MAXPLMOVE; 
+
     if (side > MAXPLMOVE) 
 	side = MAXPLMOVE; 
     else if (side < -MAXPLMOVE) 
@@ -426,14 +432,14 @@ void G_BuildTiccmd (ticcmd_t* cmd)
     // special buttons
     if (sendpause) 
     { 
-	sendpause = false; 
-	cmd->buttons = BT_SPECIAL | BTS_PAUSE; 
+		sendpause = false; 
+		cmd->buttons = BT_SPECIAL | BTS_PAUSE; 
     } 
  
     if (sendsave) 
     { 
-	sendsave = false; 
-	cmd->buttons = BT_SPECIAL | BTS_SAVEGAME | (savegameslot<<BTS_SAVESHIFT); 
+		sendsave = false; 
+		cmd->buttons = BT_SPECIAL | BTS_SAVEGAME | (savegameslot<<BTS_SAVESHIFT); 
     } 
 } 
  
@@ -447,54 +453,54 @@ void G_DoLoadLevel (void)
 { 
     int             i; 
 
-    // Set the sky map.
-    // First thing, we have a dummy sky texture name,
-    //  a flat. The data is in the WAD only because
-    //  we look for an actual index, instead of simply
-    //  setting one.
-    skyflatnum = R_FlatNumForName ( SKYFLATNAME );
+	// Set the sky map.
+	// First thing, we have a dummy sky texture name,
+	//  a flat. The data is in the WAD only because
+	//  we look for an actual index, instead of simply
+	//  setting one.
+	skyflatnum = R_FlatNumForName ( SKYFLATNAME );
 
-    // DOOM determines the sky texture to be used
-    // depending on the current episode, and the game version.
-    if ( (gamemode == commercial)
-	 || ( gamemode == pack_tnt )
-	 || ( gamemode == pack_plut ) )
-    {
-	skytexture = R_TextureNumForName ("SKY3");
-	if (gamemap < 12)
-	    skytexture = R_TextureNumForName ("SKY1");
-	else
-	    if (gamemap < 21)
-		skytexture = R_TextureNumForName ("SKY2");
-    }
+	// DOOM determines the sky texture to be used
+	// depending on the current episode, and the game version.
+	if ( (gamemode == commercial)
+		 || ( gamemode == pack_tnt )
+		 || ( gamemode == pack_plut ) )
+	{
+		skytexture = R_TextureNumForName ("SKY3");
+		if (gamemap < 12)
+			skytexture = R_TextureNumForName ("SKY1");
+		else
+			if (gamemap < 21)
+				skytexture = R_TextureNumForName ("SKY2");
+	}
 
-    levelstarttic = gametic;        // for time calculation
+	levelstarttic = gametic;        // for time calculation
     
-    if (wipegamestate == GS_LEVEL) 
-	wipegamestate = -1;             // force a wipe 
+	if (wipegamestate == GS_LEVEL) 
+		wipegamestate = -1;             // force a wipe 
 
-    gamestate = GS_LEVEL; 
+	gamestate = GS_LEVEL; 
 
-    for (i=0 ; i<MAXPLAYERS ; i++) 
-    { 
-	if (playeringame[i] && players[i].playerstate == PST_DEAD) 
-	    players[i].playerstate = PST_REBORN; 
-	memset (players[i].frags,0,sizeof(players[i].frags)); 
-    } 
+	for (i=0 ; i<MAXPLAYERS ; i++) 
+	{ 
+		if (playeringame[i] && players[i].playerstate == PST_DEAD) 
+			players[i].playerstate = PST_REBORN; 
+		memset (players[i].frags,0,sizeof(players[i].frags)); 
+	} 
 		 
-    P_SetupLevel (gameepisode, gamemap, 0, gameskill);    
-    displayplayer = consoleplayer;		// view the guy you are playing    
-    starttime = I_GetTime (); 
-    gameaction = ga_nothing; 
-    Z_CheckHeap ();
+	P_SetupLevel (gameepisode, gamemap, 0, gameskill);    
+	displayplayer = consoleplayer;		// view the guy you are playing    
+	starttime = I_GetTime (); 
+	gameaction = ga_nothing; 
+	Z_CheckHeap ();
     
-    // clear cmd building stuff
-    memset (gamekeydown, 0, sizeof(gamekeydown)); 
-    joyxmove = joyymove = 0; 
-    mousex = mousey = 0; 
-    sendpause = sendsave = paused = false; 
-    memset (mousebuttons, 0, sizeof(mousebuttons)); 
-    memset (joybuttons, 0, sizeof(joybuttons)); 
+	// clear cmd building stuff
+	memset (gamekeydown, 0, sizeof(gamekeydown)); 
+	joyxmove = joyymove = 0; 
+	mousex = mousey = 0; 
+	sendpause = sendsave = paused = false; 
+	memset (mousebuttons, 0, sizeof(mousebuttons)); 
+	memset (joybuttons, 0, sizeof(joybuttons)); 
 } 
  
  
@@ -504,42 +510,42 @@ void G_DoLoadLevel (void)
 // 
 boolean G_Responder (event_t* ev) 
 { 
-    // allow spy mode changes even during the demo
-    if (gamestate == GS_LEVEL && ev->type == ev_keydown 
-	&& ev->data1 == KEY_F12 && (singledemo || !deathmatch) )
-    {
-	// spy mode 
-	do 
-	{ 
-	    displayplayer++; 
-	    if (displayplayer == MAXPLAYERS) 
-		displayplayer = 0; 
-	} while (!playeringame[displayplayer] && displayplayer != consoleplayer); 
-	return true; 
-    }
+	// allow spy mode changes even during the demo
+	if (gamestate == GS_LEVEL && ev->type == ev_keydown 
+		&& ev->data1 == KEY_F12 && (singledemo || !deathmatch) )
+	{
+		// spy mode 
+		do 
+		{ 
+			displayplayer++; 
+			if (displayplayer == MAXPLAYERS) 
+			displayplayer = 0; 
+		} while (!playeringame[displayplayer] && displayplayer != consoleplayer); 
+		return true; 
+	}
     
-    // any other key pops up menu if in demos
-    if (gameaction == ga_nothing && !singledemo && 
-	(demoplayback || gamestate == GS_DEMOSCREEN) 
-	) 
-    { 
-	if (ev->type == ev_keydown ||  
-	    (ev->type == ev_mouse && ev->data1) || 
-	    (ev->type == ev_joystick && ev->data1) ) 
+	// any other key pops up menu if in demos
+	if (gameaction == ga_nothing && !singledemo && 
+		(demoplayback || gamestate == GS_DEMOSCREEN) 
+		) 
 	{ 
-	    M_StartControlPanel (); 
-	    return true; 
+		if (ev->type == ev_keydown ||  
+			(ev->type == ev_mouse && ev->data1) || 
+			(ev->type == ev_joystick && ev->data1) ) 
+		{ 
+			M_StartControlPanel (); 
+			return true; 
+		} 
+		return false; 
 	} 
-	return false; 
-    } 
  
-    if (gamestate == GS_LEVEL) 
-    { 
+	if (gamestate == GS_LEVEL) 
+	{ 
 #if 0 
 	if (devparm && ev->type == ev_keydown && ev->data1 == ';') 
 	{ 
-	    G_DeathMatchSpawnPlayer (0); 
-	    return true; 
+		G_DeathMatchSpawnPlayer (0); 
+		return true; 
 	} 
 #endif 
 	if (HU_Responder (ev)) 
@@ -550,51 +556,56 @@ boolean G_Responder (event_t* ev)
 	    return true;	// automap ate it 
     } 
 	 
-    if (gamestate == GS_FINALE) 
-    { 
-	if (F_Responder (ev)) 
-	    return true;	// finale ate the event 
-    } 
-	 
-    switch (ev->type) 
-    { 
-      case ev_keydown: 
-	if (ev->data1 == KEY_PAUSE) 
+	if (gamestate == GS_FINALE) 
 	{ 
-	    sendpause = true; 
-	    return true; 
+		if (F_Responder (ev)) 
+		return true;	// finale ate the event 
 	} 
-	if (ev->data1 <NUMKEYS) 
-	    gamekeydown[ev->data1] = true; 
-	return true;    // eat key down events 
+	 
+	switch (ev->type) 
+	{ 
+		case ev_keydown: 
+			if (ev->data1 == KEY_PAUSE) 
+			{ 
+				sendpause = true; 
+				return true; 
+			} 
+			
+			if (ev->data1 <NUMKEYS) 
+			{
+				gamekeydown[ev->data1] = true; 
+			}
+			return true;    // eat key down events 
  
-      case ev_keyup: 
-	if (ev->data1 <NUMKEYS) 
-	    gamekeydown[ev->data1] = false; 
-	return false;   // always let key up events filter down 
+		case ev_keyup: 
+			if (ev->data1 <NUMKEYS) 
+			{
+				gamekeydown[ev->data1] = false; 
+			}
+			return false;   // always let key up events filter down 
 		 
-      case ev_mouse: 
-	mousebuttons[0] = ev->data1 & 1; 
-	mousebuttons[1] = ev->data1 & 2; 
-	mousebuttons[2] = ev->data1 & 4; 
-	mousex = ev->data2*(mouseSensitivity+5)/10; 
-	mousey = ev->data3*(mouseSensitivity+5)/10; 
-	return true;    // eat events 
+		case ev_mouse: 
+			mousebuttons[0] = ev->data1 & 1; 
+			mousebuttons[1] = ev->data1 & 2; 
+			mousebuttons[2] = ev->data1 & 4; 
+			mousex = ev->data2*(mouseSensitivity+5)/10; 
+			mousey = ev->data3*(mouseSensitivity+5)/10; 
+			return true;    // eat events 
  
-      case ev_joystick: 
-	joybuttons[0] = ev->data1 & 1; 
-	joybuttons[1] = ev->data1 & 2; 
-	joybuttons[2] = ev->data1 & 4; 
-	joybuttons[3] = ev->data1 & 8; 
-	joyxmove = ev->data2; 
-	joyymove = ev->data3; 
-	return true;    // eat events 
+		case ev_joystick: 
+			joybuttons[0] = ev->data1 & 1; 
+			joybuttons[1] = ev->data1 & 2; 
+			joybuttons[2] = ev->data1 & 4; 
+			joybuttons[3] = ev->data1 & 8; 
+			joyxmove = ev->data2; 
+			joyymove = ev->data3; 
+			return true;    // eat events 
  
-      default: 
-	break; 
-    } 
+		default: 
+			break; 
+	} 
  
-    return false; 
+	return false; 
 } 
  
  
@@ -658,94 +669,94 @@ void G_Ticker (void)
  
     for (i=0 ; i<MAXPLAYERS ; i++)
     {
-	if (playeringame[i]) 
-	{ 
-	    cmd = &players[i].cmd; 
- 
-	    memcpy (cmd, &netcmds[i][buf], sizeof(ticcmd_t)); 
- 
-	    if (demoplayback) 
-		G_ReadDemoTiccmd (cmd); 
-	    if (demorecording) 
-		G_WriteDemoTiccmd (cmd);
-	    
-	    // check for turbo cheats
-	    if (cmd->forwardmove > TURBOTHRESHOLD 
-		&& !(gametic&31) && ((gametic>>5)&3) == i )
-	    {
-		static char turbomessage[80];
-		extern char *player_names[4];
-		sprintf (turbomessage, "%s is turbo!",player_names[i]);
-		players[consoleplayer].message = turbomessage;
-	    }
-			
-	    if (netgame && !netdemo && !(gametic%ticdup) ) 
-	    { 
-		if (gametic > BACKUPTICS 
-		    && consistancy[i][buf] != cmd->consistancy) 
+		if (playeringame[i]) 
 		{ 
-		    I_Error ("consistency failure (%i should be %i)",
-			     cmd->consistancy, consistancy[i][buf]); 
-		} 
-		if (players[i].mo) 
-		    consistancy[i][buf] = players[i].mo->x; 
-		else 
-		    consistancy[i][buf] = rndindex; 
-	    } 
-	}
+	    	cmd = &players[i].cmd; 
+ 
+	    	memcpy (cmd, &netcmds[i][buf], sizeof(ticcmd_t)); 
+ 
+	    	if (demoplayback) 
+				G_ReadDemoTiccmd (cmd); 
+	    	if (demorecording) 
+				G_WriteDemoTiccmd (cmd);
+	    
+	    	// check for turbo cheats
+	    	if (cmd->forwardmove > TURBOTHRESHOLD 
+				&& !(gametic&31) && ((gametic>>5)&3) == i )
+	    	{
+				static char turbomessage[80];
+				extern char *player_names[4];
+				sprintf (turbomessage, "%s is turbo!",player_names[i]);
+				players[consoleplayer].message = turbomessage;
+	    	}
+			
+	    	if (netgame && !netdemo && !(gametic%ticdup) ) 
+	    	{ 
+				if (gametic > BACKUPTICS 
+		    		&& consistancy[i][buf] != cmd->consistancy) 
+				{ 
+		    		I_Error ("consistency failure (%i should be %i)",
+			     		cmd->consistancy, consistancy[i][buf]); 
+				} 
+				if (players[i].mo) 
+		    		consistancy[i][buf] = players[i].mo->x; 
+				else 
+		    		consistancy[i][buf] = rndindex; 
+	    	} 
+		}
     }
     
     // check for special buttons
     for (i=0 ; i<MAXPLAYERS ; i++)
     {
-	if (playeringame[i]) 
-	{ 
-	    if (players[i].cmd.buttons & BT_SPECIAL) 
-	    { 
-		switch (players[i].cmd.buttons & BT_SPECIALMASK) 
+		if (playeringame[i]) 
 		{ 
-		  case BTS_PAUSE: 
-		    paused ^= 1; 
-		    if (paused) 
-			S_PauseSound (); 
-		    else 
-			S_ResumeSound (); 
-		    break; 
+	    	if (players[i].cmd.buttons & BT_SPECIAL) 
+	    	{ 
+				switch (players[i].cmd.buttons & BT_SPECIALMASK) 
+				{ 
+		  			case BTS_PAUSE: 
+		    			paused ^= 1; 
+		    			if (paused) 
+							S_PauseSound (); 
+		    			else 
+							S_ResumeSound (); 
+		    			break; 
 					 
-		  case BTS_SAVEGAME: 
-		    if (!savedescription[0]) 
-			strcpy (savedescription, "NET GAME"); 
-		    savegameslot =  
-			(players[i].cmd.buttons & BTS_SAVEMASK)>>BTS_SAVESHIFT; 
-		    gameaction = ga_savegame; 
-		    break; 
-		} 
-	    } 
-	}
+		  			case BTS_SAVEGAME: 
+		    			if (!savedescription[0]) 
+						strcpy (savedescription, "NET GAME"); 
+		    			savegameslot =  
+							(players[i].cmd.buttons & BTS_SAVEMASK)>>BTS_SAVESHIFT; 
+		    			gameaction = ga_savegame; 
+		    			break; 
+				} 
+	    	} 
+		}
     }
     
     // do main actions
     switch (gamestate) 
     { 
-      case GS_LEVEL: 
-	P_Ticker (); 
-	ST_Ticker (); 
-	AM_Ticker (); 
-	HU_Ticker ();            
-	break; 
+      	case GS_LEVEL: 
+			P_Ticker (); 
+			ST_Ticker (); 
+			AM_Ticker ();
+			HU_Ticker ();
+			break; 
 	 
-      case GS_INTERMISSION: 
-	WI_Ticker (); 
-	break; 
+      	case GS_INTERMISSION: 
+			WI_Ticker();
+			break; 
 			 
-      case GS_FINALE: 
-	F_Ticker (); 
-	break; 
+      	case GS_FINALE: 
+			F_Ticker (); 
+			break; 
  
-      case GS_DEMOSCREEN: 
-	D_PageTicker (); 
-	break; 
-    }        
+      	case GS_DEMOSCREEN: 
+			D_PageTicker (); 
+			break; 
+    }
 } 
  
  
@@ -1270,6 +1281,7 @@ G_SaveGame
  
 void G_DoSaveGame (void) 
 { 
+#ifndef SPMP8
     char	name[100]; 
     char	name2[VERSIONSIZE]; 
     char*	description; 
@@ -1318,6 +1330,7 @@ void G_DoSaveGame (void)
 
     // draw the pattern into the back screen
     R_FillBackScreen ();	
+#endif
 } 
  
 
@@ -1349,6 +1362,7 @@ void G_DoNewGame (void)
     netdemo = false;
     netgame = false;
     deathmatch = false;
+	playeringame[0] = true;//consoleplayer;	// added
     playeringame[1] = playeringame[2] = playeringame[3] = 0;
     respawnparm = false;
     fastparm = false;
@@ -1368,118 +1382,114 @@ G_InitNew
   int		episode,
   int		map ) 
 { 
-    int             i; 
-	 
-    if (paused) 
-    { 
-	paused = false; 
-	S_ResumeSound (); 
+	int i; 
+
+	if (paused) 
+	{ 
+		paused = false; 
+		S_ResumeSound (); 
     } 
 	
 
-    if (skill > sk_nightmare) 
+	if (skill > sk_nightmare) 
 	skill = sk_nightmare;
 
 
-    // This was quite messy with SPECIAL and commented parts.
-    // Supposedly hacks to make the latest edition work.
-    // It might not work properly.
-    if (episode < 1)
-      episode = 1; 
+	// This was quite messy with SPECIAL and commented parts.
+	// Supposedly hacks to make the latest edition work.
+	// It might not work properly.
+	if (episode < 1)
+		episode = 1; 
 
-    if ( gamemode == retail )
-    {
-      if (episode > 4)
-	episode = 4;
+	if ( gamemode == retail )
+	{
+		if (episode > 4)
+			episode = 4;
     }
-    else if ( gamemode == shareware )
+	else if ( gamemode == shareware )
     {
-      if (episode > 1) 
-	   episode = 1;	// only start episode 1 on shareware
+		if (episode > 1) 
+			episode = 1;	// only start episode 1 on shareware
     }  
     else
     {
-      if (episode > 3)
-	episode = 3;
+		if (episode > 3)
+			episode = 3;
     }
     
-
-  
     if (map < 1) 
-	map = 1;
+		map = 1;
     
-    if ( (map > 9)
-	 && ( gamemode != commercial) )
-      map = 9; 
-		 
-    M_ClearRandom (); 
-	 
-    if (skill == sk_nightmare || respawnparm )
-	respawnmonsters = true;
-    else
-	respawnmonsters = false;
+	if ( (map > 9)
+		&& ( gamemode != commercial) )
+		map = 9; 
+
+	M_ClearRandom (); 
+	if (skill == sk_nightmare || respawnparm )
+		respawnmonsters = true;
+	else
+		respawnmonsters = false;
 		
     if (fastparm || (skill == sk_nightmare && gameskill != sk_nightmare) )
     { 
-	for (i=S_SARG_RUN1 ; i<=S_SARG_PAIN2 ; i++) 
-	    states[i].tics >>= 1; 
-	mobjinfo[MT_BRUISERSHOT].speed = 20*FRACUNIT; 
-	mobjinfo[MT_HEADSHOT].speed = 20*FRACUNIT; 
-	mobjinfo[MT_TROOPSHOT].speed = 20*FRACUNIT; 
+		for (i=S_SARG_RUN1 ; i<=S_SARG_PAIN2 ; i++) 
+			states[i].tics >>= 1; 
+		mobjinfo[MT_BRUISERSHOT].speed = 20*FRACUNIT; 
+		mobjinfo[MT_HEADSHOT].speed = 20*FRACUNIT; 
+		mobjinfo[MT_TROOPSHOT].speed = 20*FRACUNIT; 
     } 
-    else if (skill != sk_nightmare && gameskill == sk_nightmare) 
-    { 
-	for (i=S_SARG_RUN1 ; i<=S_SARG_PAIN2 ; i++) 
-	    states[i].tics <<= 1; 
-	mobjinfo[MT_BRUISERSHOT].speed = 15*FRACUNIT; 
-	mobjinfo[MT_HEADSHOT].speed = 10*FRACUNIT; 
-	mobjinfo[MT_TROOPSHOT].speed = 10*FRACUNIT; 
-    } 
+	else if (skill != sk_nightmare && gameskill == sk_nightmare) 
+	{ 
+		for (i=S_SARG_RUN1 ; i<=S_SARG_PAIN2 ; i++) 
+			states[i].tics <<= 1; 
+		mobjinfo[MT_BRUISERSHOT].speed = 15*FRACUNIT; 
+		mobjinfo[MT_HEADSHOT].speed = 10*FRACUNIT; 
+		mobjinfo[MT_TROOPSHOT].speed = 10*FRACUNIT; 
+	} 
 	 
 			 
     // force players to be initialized upon first level load         
     for (i=0 ; i<MAXPLAYERS ; i++) 
-	players[i].playerstate = PST_REBORN; 
+		players[i].playerstate = PST_REBORN; 
  
-    usergame = true;                // will be set false if a demo 
-    paused = false; 
-    demoplayback = false; 
-    automapactive = false; 
-    viewactive = true; 
-    gameepisode = episode; 
-    gamemap = map; 
-    gameskill = skill; 
+	usergame = true;                // will be set false if a demo 
+	paused = false; 
+	demoplayback = false; 
+	automapactive = false; 
+	viewactive = true; 
+	gameepisode = episode; 
+	gamemap = map; 
+	gameskill = skill; 
  
-    viewactive = true;
-    
-    // set the sky map for the episode
+	viewactive = true;
+	// set the sky map for the episode
     if ( gamemode == commercial)
-    {
-	skytexture = R_TextureNumForName ("SKY3");
-	if (gamemap < 12)
-	    skytexture = R_TextureNumForName ("SKY1");
+	{
+		skytexture = R_TextureNumForName ("SKY3");
+		if (gamemap < 12)
+			skytexture = R_TextureNumForName ("SKY1");
+		else
+			if (gamemap < 21)
+				skytexture = R_TextureNumForName ("SKY2");
+	}
 	else
-	    if (gamemap < 21)
-		skytexture = R_TextureNumForName ("SKY2");
-    }
-    else
-	switch (episode) 
-	{ 
-	  case 1: 
-	    skytexture = R_TextureNumForName ("SKY1"); 
-	    break; 
-	  case 2: 
-	    skytexture = R_TextureNumForName ("SKY2"); 
-	    break; 
-	  case 3: 
-	    skytexture = R_TextureNumForName ("SKY3"); 
-	    break; 
-	  case 4:	// Special Edition sky
-	    skytexture = R_TextureNumForName ("SKY4");
-	    break;
-	} 
- 
-    G_DoLoadLevel (); 
+		switch (episode) 
+		{
+			case 1: 
+				skytexture = R_TextureNumForName ("SKY1"); 
+				break;
+			case 2:
+				skytexture = R_TextureNumForName ("SKY2");
+				break; 
+			case 3: 
+				skytexture = R_TextureNumForName ("SKY3"); 
+				break;
+			case 4:	// Special Edition sky
+				skytexture = R_TextureNumForName ("SKY4");
+				break;
+		} 
+
+	G_DoLoadLevel (); 
 } 
  
 

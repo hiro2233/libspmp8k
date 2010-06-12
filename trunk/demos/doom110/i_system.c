@@ -54,6 +54,7 @@ rcsid[] = "$Id: m_bbox.c,v 1.1 1997/02/03 22:45:10 b1 Exp $";
 
 
 int	mb_used = 6;
+extern uint32_t old_time;
 
 
 void
@@ -106,7 +107,12 @@ int  I_GetTime (void)
 #else
 	#include "libgame.h"
 
-	return (int)get_time();	
+	uint32_t t, dt;
+	
+	t = get_time();
+	t = t - old_time;
+
+	return t;
 #endif
 }
 
@@ -172,30 +178,6 @@ byte*	I_AllocLow(int length)
 //
 extern boolean demorecording;
 
-#ifndef SPMP8
-void I_Error (char *error, ...)
-{
-    va_list	argptr;
-
-    // Message first.
-    va_start (argptr,error);
-    fprintf (stderr, "Error: ");
-    vfprintf (stderr,error,argptr);
-    fprintf (stderr, "\n");
-    va_end (argptr);
-
-    fflush( stderr );
-
-    // Shutdown. Here might be other errors.
-    if (demorecording)
-	G_CheckDemoStatus();
-
-    D_QuitNetGame ();
-    I_ShutdownGraphics();
-    
-    exit(-1);
-}
-#else
 void I_Error (char *error, ...)
 {
 	va_list args;
@@ -204,12 +186,13 @@ void I_Error (char *error, ...)
 	
 	va_start(args, error);
 	vsnprintf(str, 255, error, args);
-	
+
+#ifdef DEBUG	
 //	dmsg_clear();
 	dmsg_puts("I_Error: ");
 	dmsg_puts(str);
 	dmsg_puts("\nPress 'O' to exit");
-
+#endif
 	// wait until 'O' is released
 	while (1) {
 		get_keys(&keys);
@@ -224,4 +207,3 @@ void I_Error (char *error, ...)
 	
 	exit(-1);
 }
-#endif

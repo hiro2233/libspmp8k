@@ -37,7 +37,7 @@ typedef struct
     unsigned char*	sequence;
     unsigned char*	p;
     
-} cheatseq_t;
+} __attribute__ ((packed)) cheatseq_t;
 
 int
 cht_CheckCheat

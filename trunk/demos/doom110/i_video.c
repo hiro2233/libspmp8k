@@ -43,6 +43,13 @@ rcsid[] = "$Id: i_x.c,v 1.6 1997/02/03 22:45:10 b1 Exp $";
 gfx_loadimg_t doom_video_img;
 unsigned short doom_video_pal[256];
 unsigned char doom_video_handle;
+uint32_t old_time;
+
+#define STRETCH_SCR
+
+#ifdef STRETCH_SCR
+uint8_t *scr;
+#endif
 
 key_data_t prev_keys;
 
@@ -210,10 +217,12 @@ void I_StartTic (void)
 	if ((key == KEY_UP) && (prev_key == 0)) {
 		event.type = ev_keydown;
 		D_PostEvent(&event);
+	//	dmsg_puts("U");
 	}
 	else if ((key == 0) && (prev_key == KEY_UP)) {
 		event.type = ev_keyup;
 		D_PostEvent(&event);
+	//	dmsg_puts("u");
 	}
 	
 	// DOWN
@@ -223,10 +232,12 @@ void I_StartTic (void)
 	if ((key == KEY_DOWN) && (prev_key == 0)) {
 		event.type = ev_keydown;
 		D_PostEvent(&event);
+	//	dmsg_puts("D");
 	}
 	else if ((key == 0) && (prev_key == KEY_DOWN)) {
 		event.type = ev_keyup;
 		D_PostEvent(&event);
+	//	dmsg_puts("d");
 	}
 	
 	// LEFT
@@ -236,10 +247,12 @@ void I_StartTic (void)
 	if ((key == KEY_LEFT) && (prev_key == 0)) {
 		event.type = ev_keydown;
 		D_PostEvent(&event);
+	//	dmsg_puts("L");
 	}
 	else if ((key == 0) && (prev_key == KEY_LEFT)) {
 		event.type = ev_keyup;
 		D_PostEvent(&event);
+	//	dmsg_puts("l");
 	}
 	
 	// RIGHT
@@ -249,36 +262,57 @@ void I_StartTic (void)
 	if ((key == KEY_RIGHT) && (prev_key == 0)) {
 		event.type = ev_keydown;
 		D_PostEvent(&event);
+	//	dmsg_puts("R");
 	}
 	else if ((key == 0) && (prev_key == KEY_RIGHT)) {
 		event.type = ev_keyup;
 		D_PostEvent(&event);
+	//	dmsg_puts("r");
 	}
 	
 	// X (ENTER)
 	key = keys.key2 & KEY_X;
 	prev_key = prev_keys.key2 & KEY_X;
-	event.data1 = KEY_ENTER;
+	event.data1 = KEY_RCTRL;
 	if ((key == KEY_X) && (prev_key == 0)) {
 		event.type = ev_keydown;
 		D_PostEvent(&event);
+	//	dmsg_puts("X");
 	}
 	else if ((key == 0) && (prev_key == KEY_X)) {
 		event.type = ev_keyup;
 		D_PostEvent(&event);
+	//	dmsg_puts("x");
 	}
 	
-	// O (ESCAPE)
+	// O (USE)
 	key = keys.key2 & KEY_O;
 	prev_key = prev_keys.key2 & KEY_O;
-	event.data1 = KEY_ESCAPE;
+	event.data1 = 0x20;
 	if ((key == KEY_O) && (prev_key == 0)) {
 		event.type = ev_keydown;
 		D_PostEvent(&event);
+	//	dmsg_puts("O");
 	}
 	else if ((key == 0) && (prev_key == KEY_O)) {
 		event.type = ev_keyup;
 		D_PostEvent(&event);
+	//	dmsg_puts("o");
+	}
+	
+	// SELECT (ENTER)
+	key = keys.key2 & 0xF000;
+	prev_key = prev_keys.key2 & 0xF000;
+	event.data1 = KEY_ENTER;
+	if ((key != 0) && (prev_key == 0)) {
+		event.type = ev_keydown;
+		D_PostEvent(&event);
+	//	dmsg_puts("S");
+	}
+	else if ((key != 0) && (prev_key & 0xF000)) {
+		event.type = ev_keyup;
+		D_PostEvent(&event);
+	//	dmsg_puts("s");
 	}
 	
 	prev_keys.key2 = keys.key2;
@@ -307,153 +341,41 @@ void I_FinishUpdate (void)
 	gfx_point2d_t pos;
 	gfx_rect_t    rect;
 	
+#ifdef STRETCH_SCR
+	int y, nline_s, nline, ny;
+
+	nline = nline_s = 0;
+	ny = 5;
+	for (y=0; y<200; y++) {
+		memcpy(&scr[nline_s], &screens[0][nline], 320);
+		nline_s += 320;
+		
+		if (y == ny) {
+			memcpy(&scr[nline_s], &screens[0][nline], 320);
+			nline_s += 320;
+			ny += 5;
+		}
+		nline += 320;
+	}
+
 	pos.x = 0;
 	pos.y = 0;
 	rect.x = 0;
 	rect.y = 0;
+	rect.width = 320;
+	rect.height = 240;
+#else
+	pos.x = 0;
+	pos.y = (240 - SCREENHEIGHT) >> 1;
+	rect.x = 0;
+	rect.y = 0;
 	rect.width = SCREENWIDTH;
 	rect.height = SCREENHEIGHT;
+#endif
 	gfx_bitblt(doom_video_handle, &rect, &pos);
 	
 	gfx_flush();
 	gfx_paint();
-	
-/*
-    static int	lasttic;
-    int		tics;
-    int		i;
-
-    // scales the screen size before blitting it
-    if ( SDL_MUSTLOCK(screen) ) {
-	if ( SDL_LockSurface(screen) < 0 ) {
-	    return;
-	}
-    }
-    if ((multiply == 1) && SDL_MUSTLOCK(screen))
-    {
-	unsigned char *olineptr;
-	unsigned char *ilineptr;
-	int y;
-
-	ilineptr = (unsigned char *) screens[0];
-	olineptr = (unsigned char *) screen->pixels;
-
-	y = SCREENHEIGHT;
-	while (y--)
-	{
-	    memcpy(olineptr, ilineptr, screen->w);
-	    ilineptr += SCREENWIDTH;
-	    olineptr += screen->pitch;
-	}
-    }
-    else if (multiply == 2)
-    {
-	unsigned int *olineptrs[2];
-	unsigned int *ilineptr;
-	int x, y, i;
-	unsigned int twoopixels;
-	unsigned int twomoreopixels;
-	unsigned int fouripixels;
-
-	ilineptr = (unsigned int *) (screens[0]);
-	for (i=0 ; i<2 ; i++) {
-	    olineptrs[i] =
-		(unsigned int *)&((Uint8 *)screen->pixels)[i*screen->pitch];
-        }
-
-	y = SCREENHEIGHT;
-	while (y--)
-	{
-	    x = SCREENWIDTH;
-	    do
-	    {
-		fouripixels = *ilineptr++;
-		twoopixels =	(fouripixels & 0xff000000)
-		    |	((fouripixels>>8) & 0xffff00)
-		    |	((fouripixels>>16) & 0xff);
-		twomoreopixels =	((fouripixels<<16) & 0xff000000)
-		    |	((fouripixels<<8) & 0xffff00)
-		    |	(fouripixels & 0xff);
-#ifdef __BIG_ENDIAN__
-		*olineptrs[0]++ = twoopixels;
-		*olineptrs[1]++ = twoopixels;
-		*olineptrs[0]++ = twomoreopixels;
-		*olineptrs[1]++ = twomoreopixels;
-#else
-		*olineptrs[0]++ = twomoreopixels;
-		*olineptrs[1]++ = twomoreopixels;
-		*olineptrs[0]++ = twoopixels;
-		*olineptrs[1]++ = twoopixels;
-#endif
-	    } while (x-=4);
-	    olineptrs[0] += screen->pitch/4;
-	    olineptrs[1] += screen->pitch/4;
-	}
-
-    }
-    else if (multiply == 3)
-    {
-	unsigned int *olineptrs[3];
-	unsigned int *ilineptr;
-	int x, y, i;
-	unsigned int fouropixels[3];
-	unsigned int fouripixels;
-
-	ilineptr = (unsigned int *) (screens[0]);
-	for (i=0 ; i<3 ; i++) {
-	    olineptrs[i] = 
-		(unsigned int *)&((Uint8 *)screen->pixels)[i*screen->pitch];
-        }
-
-	y = SCREENHEIGHT;
-	while (y--)
-	{
-	    x = SCREENWIDTH;
-	    do
-	    {
-		fouripixels = *ilineptr++;
-		fouropixels[0] = (fouripixels & 0xff000000)
-		    |	((fouripixels>>8) & 0xff0000)
-		    |	((fouripixels>>16) & 0xffff);
-		fouropixels[1] = ((fouripixels<<8) & 0xff000000)
-		    |	(fouripixels & 0xffff00)
-		    |	((fouripixels>>8) & 0xff);
-		fouropixels[2] = ((fouripixels<<16) & 0xffff0000)
-		    |	((fouripixels<<8) & 0xff00)
-		    |	(fouripixels & 0xff);
-#ifdef __BIG_ENDIAN__
-		*olineptrs[0]++ = fouropixels[0];
-		*olineptrs[1]++ = fouropixels[0];
-		*olineptrs[2]++ = fouropixels[0];
-		*olineptrs[0]++ = fouropixels[1];
-		*olineptrs[1]++ = fouropixels[1];
-		*olineptrs[2]++ = fouropixels[1];
-		*olineptrs[0]++ = fouropixels[2];
-		*olineptrs[1]++ = fouropixels[2];
-		*olineptrs[2]++ = fouropixels[2];
-#else
-		*olineptrs[0]++ = fouropixels[2];
-		*olineptrs[1]++ = fouropixels[2];
-		*olineptrs[2]++ = fouropixels[2];
-		*olineptrs[0]++ = fouropixels[1];
-		*olineptrs[1]++ = fouropixels[1];
-		*olineptrs[2]++ = fouropixels[1];
-		*olineptrs[0]++ = fouropixels[0];
-		*olineptrs[1]++ = fouropixels[0];
-		*olineptrs[2]++ = fouropixels[0];
-#endif
-	    } while (x-=4);
-	    olineptrs[0] += 2*screen->pitch/4;
-	    olineptrs[1] += 2*screen->pitch/4;
-	    olineptrs[2] += 2*screen->pitch/4;
-	}
-
-    }
-    if ( SDL_MUSTLOCK(screen) ) {
-	SDL_UnlockSurface(screen);
-    }
-    SDL_UpdateRect(screen, 0, 0, 0, 0);
-*/
 }
 
 
@@ -476,15 +398,18 @@ void I_SetPalette (byte* palette)
 	int r, g, b;
 
 	ppal = palette;
+	gfx_free_image(doom_video_handle);
 	for ( i=0; i<256; ++i ) {
-		r = ppal[0];
-		g = ppal[1];
-		b = ppal[2];
+		r = gammatable[usegamma][ppal[0]];
+		g = gammatable[usegamma][ppal[1]];
+		b = gammatable[usegamma][ppal[2]];
 		doom_video_pal[i] = ((r & 0xf8) << 8) | ((g & 0xfc) << 3) | ((b & 0xf8) >> 3);	// 565 - r:g:b
 		ppal+=3;
 	}
+	gfx_load_image(&doom_video_img, &doom_video_handle);
 }
 
+extern int	ticdup;
 
 void I_InitGraphics(void)
 {
@@ -493,8 +418,10 @@ void I_InitGraphics(void)
 
     if (!firsttime) return;
     firsttime = 0;
+	
+	ticdup = 1;
 
-	dmsg_puts("begin...");
+	old_time = get_time();
 	// initialize graphics
 /*	gfx_init(NULL, 0);
 	gfx_set_framebuffer(SCREENWIDTH, SCREENHEIGHT);
@@ -506,13 +433,23 @@ void I_InitGraphics(void)
 	gfx_set_display_screen(&rect);
 */
 	screens[0] = (unsigned char *)malloc(SCREENWIDTH * SCREENHEIGHT);
-	screens[1] = screens[0];
+	screens[1] = (unsigned char *)malloc(SCREENWIDTH * SCREENHEIGHT);
+	screens[2] = screens[1];
+	screens[3] = screens[1];
+//	screens[1] = screens[0];
     if (screens[0] == NULL) I_Error("Couldn't allocate screen memory");
 	
 	memset(screens[0], 0, SCREENWIDTH * SCREENHEIGHT);
+#ifdef STRETCH_SCR
+	scr = (uint8_t*)malloc(320*240);
+	doom_video_img.data     = scr;
+	doom_video_img.width    = SCREENWIDTH;
+	doom_video_img.height   = 240;
+#else
 	doom_video_img.data     = screens[0];
 	doom_video_img.width    = SCREENWIDTH;
 	doom_video_img.height   = SCREENHEIGHT;
+#endif
 	doom_video_img.img_type = IMG_TYPE_8BPP;
 	doom_video_img.unk2     = 0;
 	doom_video_img.pal_data = doom_video_pal;
@@ -525,6 +462,4 @@ void I_InitGraphics(void)
 	// initialize input
 	prev_keys.key1 = 0;
 	prev_keys.key2 = 0;
-	
-	dmsg_puts("end");
 }

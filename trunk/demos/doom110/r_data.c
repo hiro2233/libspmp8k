@@ -47,8 +47,7 @@ rcsid[] = "$Id: r_data.c,v 1.4 1997/02/03 16:47:55 b1 Exp $";
 #endif
 
 #ifdef SPMP8
-#include "libgame.h"
-#define printf dmsg_printf
+	#include "libgame.h"
 #endif
 
 #include "r_data.h"
@@ -478,7 +477,7 @@ void R_InitTextures (void)
 		numtextures2 = 0;
 		maxoff2 = 0;
     }
-    dmsg_printf("numtextures2 = %d\n", numtextures2);
+
     numtextures = numtextures1 + numtextures2;
     textures = Z_Malloc (numtextures*4, PU_STATIC, 0);
     texturecolumnlump = Z_Malloc (numtextures*4, PU_STATIC, 0);

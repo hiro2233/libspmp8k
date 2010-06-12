@@ -79,8 +79,12 @@ static const char rcsid[] = "$Id: d_main.c,v 1.8 1997/02/03 22:45:09 b1 Exp $";
 #include "d_main.h"
 
 #ifdef SPMP8
-#include "libgame.h"
-#define printf dmsg_printf
+	#include "libgame.h"
+#ifdef DEBUG
+#error "DEBUG"
+	#define	dmsg_printf	printf
+	#define	dmsg_puts	printf
+#endif
 #endif
 
 #define R_OK	4
@@ -172,7 +176,7 @@ int 		eventtail;
 void D_PostEvent (event_t* ev)
 {
     events[eventhead] = *ev;
-    eventhead = (++eventhead)&(MAXEVENTS-1);
+	eventhead = (++eventhead)&(MAXEVENTS-1);
 }
 
 
@@ -183,19 +187,20 @@ void D_PostEvent (event_t* ev)
 void D_ProcessEvents (void)
 {
     event_t*	ev;
-	
-    // IF STORE DEMO, DO NOT ACCEPT INPUT
-    if ( ( gamemode == commercial )
-	 && (W_CheckNumForName("map01")<0) )
-      return;
-	
-    for ( ; eventtail != eventhead ; eventtail = (++eventtail)&(MAXEVENTS-1) )
-    {
-	ev = &events[eventtail];
-	if (M_Responder (ev))
-	    continue;               // menu ate the event
-	G_Responder (ev);
-    }
+/*
+	// IF STORE DEMO, DO NOT ACCEPT INPUT
+	if ((gamemode == commercial)
+		&& (W_CheckNumForName("map01")<0) )
+		return;
+*/
+	for ( ; eventtail != eventhead ; eventtail = (++eventtail)&(MAXEVENTS-1) )
+	{
+		ev = &events[eventtail];
+		if (M_Responder (ev)) {
+			continue;               // menu ate the event
+		}
+		G_Responder(ev);
+	}
 }
 
 char           *pagename;
@@ -244,7 +249,6 @@ void D_Display (void)
     // save the current screen if about to wipe
     if (gamestate != wipegamestate)
     {
-    	dmsg_printf("gs=%d, wgs=%d\n", gamestate, wipegamestate);
 		wipe = true;
 		wipe_StartScreen(0, 0, SCREENWIDTH, SCREENHEIGHT);
     }
@@ -259,9 +263,13 @@ void D_Display (void)
     {
 		case GS_LEVEL:
 			if (!gametic)
-	    	break;
-			if (automapactive)
+	    		break;
+			if (automapactive) {
 	    		AM_Drawer ();
+	    	}
+	    	else {
+	    		AM_Drawer ();
+			}
 			if (wipe || (viewheight != 200 && fullscreen) )
 	    		redrawsbar = true;
 			if (inhelpscreensstate && !inhelpscreens)
@@ -393,15 +401,15 @@ void D_DoomLoop (void)
 //	if (testcontrols) {
 //		wipegamestate = gamestate;
 //	}
-	pagename = "TITLEPIC";
-	dmsg_printf("singletics = %d (name=%s)\n", singletics, pagename);
+//	pagename = "TITLEPIC";
 	//strcpy(pagename, "TITLEPIC");
 	singletics = true;
+	AM_Start();
     while (1)
     {
 		// frame syncronous IO operations
 		I_StartFrame ();                
-	//	dmsg_puts("<");
+
 		// process one or more tics
 		if (singletics)
 		{
@@ -419,12 +427,12 @@ void D_DoomLoop (void)
 		{
 	    	TryRunTics (); // will run at least one tic
 		}
-	//	dmsg_puts(".");
+
 		S_UpdateSounds (players[consoleplayer].mo);// move positional sounds
 
 		// Update display, next frame, with current state.
 		D_Display ();
-	//	dmsg_puts(">");
+
 #ifndef SNDSERV
 		// Sound mixing for the buffer is snychronous.
 		I_UpdateSound();
@@ -604,6 +612,7 @@ void IdentifyVersion (void)
     char*	tntwad;
 
 #ifdef NORMALUNIX
+#error "this is not Linux"
     char *home;
     char *doomwaddir;
     doomwaddir = getenv("DOOMWADDIR");
@@ -647,7 +656,7 @@ void IdentifyVersion (void)
 
 #ifdef SPMP8
 	gamemode = shareware;
-	devparm = true;
+//	devparm = true;
 	D_AddFile ("doom1.wad");
 //	D_AddFile ("data_se/texture1.lmp");
 //	D_AddFile ("data_se/pnames.lmp");
@@ -1197,29 +1206,32 @@ void D_DoomMain (void)
 	    sprintf(file, SAVEGAMENAME"%c.dsg",myargv[p+1][0]);
 	G_LoadGame (file);
     }
-	
 
-    if ( gameaction != ga_loadgame )
-    {
-	if (autostart || netgame)
-	    G_InitNew (startskill, startepisode, startmap);
-	else
-	    D_StartTitle ();                // start up intro loop
-
-    }
-
-//	dmsg_clear();
-	dmsg_puts("Enter DOOM main loop\n");
-/*
-	key_data_t keys;
-
-	while (1) {
-		get_keys(&keys);
-		if (keys.key2 & KEY_O) break;
-	}
-*/
+#ifdef DEBUG
 	dmsg_shutdown();
 	dmsg_init(0, 200, 320, 40);
+//	dmsg_wait(1);
+#endif
+	
+	D_StartTitle ();
+/*
+    if ( gameaction != ga_loadgame )
+    {
+		if (autostart || netgame)
+	    	G_InitNew (startskill, startepisode, startmap);
+		else
+	    	D_StartTitle ();                // start up intro loop
+    }
+*/
+
+	dmsg_puts("\n\n\n        Press X to enter the ...");
+
+	key_data_t keys;
+	while (1) {
+		get_keys(&keys);
+		if (keys.key2 & KEY_X) break;
+	}
+
 
     D_DoomLoop ();  // never returns
 }
