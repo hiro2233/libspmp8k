@@ -268,6 +268,7 @@ int main(int argc, char *argv[])
 	
 	fwrite(foutbuf, outlen, 1, fo);
 	fclose(fo);
+	fo = NULL;
 
 	#ifdef DEBUG
 		printf("Wrote 0x%0X bytes to %s\n", outlen, argv[2]);
